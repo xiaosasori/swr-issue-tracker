@@ -1,6 +1,7 @@
 <script setup>
 import { relativeDate } from '../helpers/relativeDate'
-defineProps({
+import { useUserData } from '@/composables/useUserData'
+const props = defineProps({
   title: String,
   number: Number,
   assignee: String,
@@ -10,6 +11,13 @@ defineProps({
   labels: Array,
   status: String,
 })
+
+let assigneeUser
+if (props.assignee) {
+  assigneeUser = useUserData(props.assignee)
+}
+
+const createdByUser = useUserData(props.createdBy)
 </script>
 
 <template>
@@ -30,10 +38,18 @@ defineProps({
         </span>
       </span>
       <small>
-        #{{ number }} opened {{ relativeDate(createdDate) }} by {{ createdBy }}
+        #{{ number }} opened {{ relativeDate(createdDate) }}
+        <template v-if="createdByUser.isSuccess"
+          >by {{ createdByUser.data.name }}</template
+        >
       </small>
     </div>
-    <div v-if="assignee">{{ assignee }}</div>
+    <img
+      v-if="assignee && assigneeUser.isSuccess"
+      :src="assigneeUser.data.profilePictureUrl"
+      class="assigned-to"
+      :alt="`Assigned to ${assigneeUser.data.name}`"
+    />
     <span class="comment-count">
       <template v-if="commentCount > 0">
         <Icon icon="codicon:comment" />
