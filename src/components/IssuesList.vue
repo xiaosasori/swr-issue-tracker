@@ -11,7 +11,7 @@ const { isLoading, data } = useQuery({
   <div>
     <h2>Issues List</h2>
     <p v-if="isLoading">Loading...</p>
-    <ul v-else className="issues-list">
+    <ul v-else class="issues-list">
       <IssueItem
         v-for="issue in data"
         :key="issue.id"

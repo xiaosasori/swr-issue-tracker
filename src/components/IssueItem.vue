@@ -12,12 +12,13 @@ const props = defineProps({
   status: String,
 })
 
-let assigneeUser
+let assigneeUser = ref(null)
 if (props.assignee) {
-  assigneeUser = useUserData(props.assignee)
+  const { data } = useUserData(props.assignee)
+  assigneeUser = data
 }
 
-const createdByUser = useUserData(props.createdBy)
+const { data: createdByUser } = useUserData(props.createdBy)
 </script>
 
 <template>
@@ -30,7 +31,7 @@ const createdByUser = useUserData(props.createdBy)
       />
       <Icon v-else icon="octicon:issue-opened-16" color="green" />
     </div>
-    <div className="issue-content">
+    <div class="issue-content">
       <span>
         <router-link :to="`/issue/${number}`">{{ title }}</router-link>
         <span v-for="label in labels" :key="label" class="label red">
@@ -39,16 +40,14 @@ const createdByUser = useUserData(props.createdBy)
       </span>
       <small>
         #{{ number }} opened {{ relativeDate(createdDate) }}
-        <template v-if="createdByUser.isSuccess"
-          >by {{ createdByUser.data.name }}</template
-        >
+        <template v-if="createdByUser"> by {{ createdByUser.name }} </template>
       </small>
     </div>
     <img
-      v-if="assignee && assigneeUser.isSuccess"
-      :src="assigneeUser.data.profilePictureUrl"
+      v-if="assignee && assigneeUser"
+      :src="assigneeUser.profilePictureUrl"
       class="assigned-to"
-      :alt="`Assigned to ${assigneeUser.data.name}`"
+      :alt="`Assigned to ${assigneeUser.name}`"
     />
     <span class="comment-count">
       <template v-if="commentCount > 0">
