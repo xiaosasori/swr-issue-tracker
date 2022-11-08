@@ -1,16 +1,21 @@
 <script setup>
-import { toRef } from 'vue'
+import { toRefs } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
+import IssueItem from './IssueItem.vue'
 
 const props = defineProps({
   labels: Array,
+  status: String,
 })
-const labels = toRef(props, 'labels')
-const { isLoading, data } = useQuery(['issues', labels], () => {
-  const labelsString = props.labels
+const { labels, status } = toRefs(props)
+const { isLoading, data } = useQuery(['issues', { labels, status }], () => {
+  const labelsString = labels.value
     .map((label) => `labels[]=${label}`)
     .join('&')
-  return fetch(`/api/issues?${labelsString}`).then((res) => res.json())
+  const statusString = status.value ? `&status=${status.value}` : ''
+  return fetch(`/api/issues?${labelsString}${statusString}`).then((res) =>
+    res.json()
+  )
 })
 </script>
 
