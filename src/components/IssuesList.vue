@@ -1,9 +1,16 @@
 <script setup>
+import { toRef } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
 
-const { isLoading, data } = useQuery({
-  queryKey: ['issues'],
-  queryFn: () => fetch('/api/issues').then((res) => res.json()),
+const props = defineProps({
+  labels: Array,
+})
+const labels = toRef(props, 'labels')
+const { isLoading, data } = useQuery(['issues', labels], () => {
+  const labelsString = props.labels
+    .map((label) => `labels[]=${label}`)
+    .join('&')
+  return fetch(`/api/issues?${labelsString}`).then((res) => res.json())
 })
 </script>
 

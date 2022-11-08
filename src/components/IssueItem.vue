@@ -1,6 +1,7 @@
 <script setup>
 import { relativeDate } from '../helpers/relativeDate'
 import { useUserData } from '@/composables/useUserData'
+import Label from './Label.vue'
 const props = defineProps({
   title: String,
   number: Number,
@@ -12,7 +13,7 @@ const props = defineProps({
   status: String,
 })
 
-let assigneeUser = ref(null)
+let assigneeUser
 if (props.assignee) {
   const { data } = useUserData(props.assignee)
   assigneeUser = data
@@ -34,9 +35,7 @@ const { data: createdByUser } = useUserData(props.createdBy)
     <div class="issue-content">
       <span>
         <router-link :to="`/issue/${number}`">{{ title }}</router-link>
-        <span v-for="label in labels" :key="label" class="label red">
-          {{ label }}
-        </span>
+        <Label v-for="label in labels" :key="label" :label="label" />
       </span>
       <small>
         #{{ number }} opened {{ relativeDate(createdDate) }}
