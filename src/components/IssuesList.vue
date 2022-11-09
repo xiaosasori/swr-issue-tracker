@@ -3,22 +3,28 @@ import { toRefs, computed } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
 import IssueItem from './IssueItem.vue'
 import { useDebouncedRef } from '@/composables/useDebouncedRef'
+import fetchWithError from '../helpers/fetchWithError'
 
 const props = defineProps({
   labels: Array,
   status: String,
 })
 const { labels, status } = toRefs(props)
-const { isLoading, data } = useQuery(
+const {
+  isLoading: isIssuesQueryLoading,
+  data: issues,
+  isError: isIssuesQueryError,
+  error: issuesQueryError,
+} = useQuery(
   ['issues', { labels, status }],
   () => {
     const labelsString = labels.value
       .map((label) => `labels[]=${label}`)
       .join('&')
     const statusString = status.value ? `&status=${status.value}` : ''
-    return fetch(`/api/issues?${labelsString}${statusString}`).then((res) =>
-      res.json()
-    )
+    return fetchWithError(`/api/issues?${labelsString}${statusString}`, {
+      // headers: { 'x-error': true },
+    })
   },
   {
     staleTime: 1000 * 60,
@@ -52,13 +58,14 @@ const {
       />
     </form>
     <h2>Issues List</h2>
-    <p v-if="isLoading">Loading...</p>
+    <p v-if="isIssuesQueryLoading">Loading...</p>
+    <p v-if="isIssuesQueryError">{{ issuesQueryError.message }}</p>
     <ul
       v-else-if="fetchSearchStatus === 'idle' && isSearchLoading"
       class="issues-list"
     >
       <IssueItem
-        v-for="issue in data"
+        v-for="issue in issues"
         :key="issue.id"
         :title="issue.title"
         :number="issue.number"
