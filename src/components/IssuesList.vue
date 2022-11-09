@@ -9,15 +9,21 @@ const props = defineProps({
   status: String,
 })
 const { labels, status } = toRefs(props)
-const { isLoading, data } = useQuery(['issues', { labels, status }], () => {
-  const labelsString = labels.value
-    .map((label) => `labels[]=${label}`)
-    .join('&')
-  const statusString = status.value ? `&status=${status.value}` : ''
-  return fetch(`/api/issues?${labelsString}${statusString}`).then((res) =>
-    res.json()
-  )
-})
+const { isLoading, data } = useQuery(
+  ['issues', { labels, status }],
+  () => {
+    const labelsString = labels.value
+      .map((label) => `labels[]=${label}`)
+      .join('&')
+    const statusString = status.value ? `&status=${status.value}` : ''
+    return fetch(`/api/issues?${labelsString}${statusString}`).then((res) =>
+      res.json()
+    )
+  },
+  {
+    staleTime: 1000 * 60,
+  }
+)
 
 const search = useDebouncedRef('')
 const {
