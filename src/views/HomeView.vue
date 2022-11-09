@@ -20,7 +20,6 @@ function toggle(id) {
   <div>
     <main>
       <section>
-        <h1>Issues</h1>
         <IssuesList :labels="labels" :status="status" />
       </section>
       <aside>
