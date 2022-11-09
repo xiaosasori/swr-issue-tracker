@@ -15,21 +15,15 @@ const {
   data: issues,
   isError: isIssuesQueryError,
   error: issuesQueryError,
-} = useQuery(
-  ['issues', { labels, status }],
-  () => {
-    const labelsString = labels.value
-      .map((label) => `labels[]=${label}`)
-      .join('&')
-    const statusString = status.value ? `&status=${status.value}` : ''
-    return fetchWithError(`/api/issues?${labelsString}${statusString}`, {
-      // headers: { 'x-error': true },
-    })
-  },
-  {
-    staleTime: 1000 * 60,
-  }
-)
+} = useQuery(['issues', { labels, status }], () => {
+  const labelsString = labels.value
+    .map((label) => `labels[]=${label}`)
+    .join('&')
+  const statusString = status.value ? `&status=${status.value}` : ''
+  return fetchWithError(`/api/issues?${labelsString}${statusString}`, {
+    // headers: { 'x-error': true },
+  })
+})
 
 const search = useDebouncedRef('')
 const {

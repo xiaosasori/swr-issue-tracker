@@ -18,6 +18,7 @@ setTimeout(() => {
     queryClientConfig: {
       defaultOptions: {
         queries: {
+          staleTime: 1000 * 60,
           // useErrorBoundary: true,
           refetchOnWindowFocus: false,
           // retry(failureCount: number, error: any) {
