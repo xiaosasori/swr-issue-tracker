@@ -1,6 +1,6 @@
 <script setup>
 import { toRefs, computed } from 'vue'
-import { useQuery } from '@tanstack/vue-query'
+import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import IssueItem from './IssueItem.vue'
 import Loader from './Loader.vue'
 import { useDebouncedRef } from '@/composables/useDebouncedRef'
@@ -11,21 +11,31 @@ const props = defineProps({
   status: String,
 })
 const { labels, status } = toRefs(props)
+const queryClient = useQueryClient()
 const {
   isLoading: isIssuesQueryLoading,
   data: issues,
   isError: isIssuesQueryError,
   error: issuesQueryError,
   fetchStatus: fetchIssuesQueryStatus,
-} = useQuery(['issues', { labels, status }], ({ signal }) => {
+} = useQuery(['issues', { labels, status }], async ({ signal }) => {
   const labelsString = labels.value
     .map((label) => `labels[]=${label}`)
     .join('&')
   const statusString = status.value ? `&status=${status.value}` : ''
-  return fetchWithError(`/api/issues?${labelsString}${statusString}`, {
-    // headers: { 'x-error': true },
-    signal,
+  const results = await fetchWithError(
+    `/api/issues?${labelsString}${statusString}`,
+    {
+      // headers: { 'x-error': true },
+      signal,
+    }
+  )
+
+  results.forEach((issue) => {
+    queryClient.setQueryData(['issues', issue.number.toString()], issue)
   })
+
+  return results
 })
 
 const search = useDebouncedRef('')

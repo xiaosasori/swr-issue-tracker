@@ -2,6 +2,8 @@
 import { relativeDate } from '../helpers/relativeDate'
 import { useUserData } from '@/composables/useUserData'
 import Label from './Label.vue'
+import { useQueryClient } from '@tanstack/vue-query'
+import fetchWithError from '../helpers/fetchWithError'
 const props = defineProps({
   title: String,
   number: Number,
@@ -20,10 +22,21 @@ if (props.assignee) {
 }
 
 const { data: createdByUser } = useUserData(props.createdBy)
+const queryClient = useQueryClient()
+
+function prefetch() {
+  queryClient.prefetchQuery(['issues', props.number.toString()], () =>
+    fetchWithError(`/api/issues/${props.number}`)
+  )
+  queryClient.prefetchQuery(
+    ['issues', props.number.toString(), 'comments'],
+    () => fetchWithError(`/api/issues/${props.number}/comments`)
+  )
+}
 </script>
 
 <template>
-  <li>
+  <li @mouseenter="prefetch">
     <div>
       <Icon
         v-if="status === 'done' || status === 'cancelled'"
