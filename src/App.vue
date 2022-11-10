@@ -1,4 +1,6 @@
-<script setup></script>
+<script setup>
+import FetchingIndicator from './components/FetchingIndicator.vue'
+</script>
 
 <template>
   <div class="yellow-border"></div>
@@ -9,5 +11,6 @@
     <span v-else>&nbsp;</span>
     <h1>Issue Tracker</h1>
     <RouterView />
+    <FetchingIndicator />
   </div>
 </template>

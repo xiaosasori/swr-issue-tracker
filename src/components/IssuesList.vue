@@ -2,6 +2,7 @@
 import { toRefs, computed } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
 import IssueItem from './IssueItem.vue'
+import Loader from './Loader.vue'
 import { useDebouncedRef } from '@/composables/useDebouncedRef'
 import fetchWithError from '../helpers/fetchWithError'
 
@@ -15,6 +16,7 @@ const {
   data: issues,
   isError: isIssuesQueryError,
   error: issuesQueryError,
+  fetchStatus: fetchIssuesQueryStatus,
 } = useQuery(['issues', { labels, status }], ({ signal }) => {
   const labelsString = labels.value
     .map((label) => `labels[]=${label}`)
@@ -55,7 +57,7 @@ const {
         v-model="search"
       />
     </form>
-    <h2>Issues List</h2>
+    <h2>Issues List <Loader v-if="fetchIssuesQueryStatus === 'fetching'" /></h2>
     <p v-if="isIssuesQueryLoading">Loading...</p>
     <p v-if="isIssuesQueryError">{{ issuesQueryError.message }}</p>
     <ul
