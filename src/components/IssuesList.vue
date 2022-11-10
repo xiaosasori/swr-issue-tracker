@@ -15,13 +15,14 @@ const {
   data: issues,
   isError: isIssuesQueryError,
   error: issuesQueryError,
-} = useQuery(['issues', { labels, status }], () => {
+} = useQuery(['issues', { labels, status }], ({ signal }) => {
   const labelsString = labels.value
     .map((label) => `labels[]=${label}`)
     .join('&')
   const statusString = status.value ? `&status=${status.value}` : ''
   return fetchWithError(`/api/issues?${labelsString}${statusString}`, {
     // headers: { 'x-error': true },
+    signal,
   })
 })
 
@@ -32,7 +33,10 @@ const {
   isLoading: isSearchLoading,
 } = useQuery(
   ['issues', 'search', search],
-  () => fetch(`/api/search/issues?q=${search.value}`).then((res) => res.json()),
+  ({ signal }) =>
+    fetch(`/api/search/issues?q=${search.value}`, { signal }).then((res) =>
+      res.json()
+    ),
   {
     enabled: computed(() => search.value.length > 0),
   }
