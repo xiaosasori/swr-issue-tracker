@@ -7,7 +7,7 @@ const props = defineProps({
   createdBy: String,
   createdDate: String,
 })
-console.log('props.createdBy', props.createdBy)
+
 const { isLoading, data } = useUserData(props.createdBy)
 </script>
 <template>

@@ -1,4 +1,10 @@
 <script setup>
+defineProps({
+  noEmptyOption: {
+    type: Boolean,
+    default: false,
+  },
+})
 const possibleStatus = [
   { id: 'backlog', label: 'Backlog' },
   { id: 'todo', label: 'To-do' },
@@ -10,7 +16,7 @@ const possibleStatus = [
 
 <template>
   <select class="status-select">
-    <option value="">Select a status to filter</option>
+    <option v-if="!noEmptyOption" value="">Select a status to filter</option>
     <option
       v-for="status in possibleStatus"
       :key="status.id"

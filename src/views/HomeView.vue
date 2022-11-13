@@ -26,6 +26,8 @@ function toggle(id) {
         <LabelList :selected="labels" @toggle="toggle" />
         <h3>Status</h3>
         <StatusSelect :value="status" @change="status = $event.target.value" />
+        <hr />
+        <router-link class="button" to="/add"> Add Issue </router-link>
       </aside>
     </main>
   </div>
