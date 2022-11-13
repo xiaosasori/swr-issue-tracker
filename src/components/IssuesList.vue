@@ -9,34 +9,41 @@ import fetchWithError from '../helpers/fetchWithError'
 const props = defineProps({
   labels: Array,
   status: String,
+  pageNum: Number,
 })
-const { labels, status } = toRefs(props)
+const { labels, status, pageNum } = toRefs(props)
 const queryClient = useQueryClient()
 const {
+  isPreviousData: isPreviousIssues,
   isLoading: isIssuesQueryLoading,
   data: issues,
   isError: isIssuesQueryError,
   error: issuesQueryError,
   fetchStatus: fetchIssuesQueryStatus,
-} = useQuery(['issues', { labels, status }], async ({ signal }) => {
-  const labelsString = labels.value
-    .map((label) => `labels[]=${label}`)
-    .join('&')
-  const statusString = status.value ? `&status=${status.value}` : ''
-  const results = await fetchWithError(
-    `/api/issues?${labelsString}${statusString}`,
-    {
-      // headers: { 'x-error': true },
-      signal,
-    }
-  )
+} = useQuery(
+  ['issues', { labels, status, pageNum }],
+  async ({ signal }) => {
+    const labelsString = labels.value
+      .map((label) => `labels[]=${label}`)
+      .join('&')
+    const statusString = status.value ? `&status=${status.value}` : ''
+    const paginationString = pageNum.value ? `&page=${pageNum.value}` : ''
+    const results = await fetchWithError(
+      `/api/issues?${labelsString}${statusString}${paginationString}`,
+      {
+        // headers: { 'x-error': true },
+        signal,
+      }
+    )
 
-  results.forEach((issue) => {
-    queryClient.setQueryData(['issues', issue.number.toString()], issue)
-  })
+    results.forEach((issue) => {
+      queryClient.setQueryData(['issues', issue.number.toString()], issue)
+    })
 
-  return results
-})
+    return results
+  },
+  { keepPreviousData: true }
+)
 
 const search = useDebouncedRef('')
 const {
@@ -53,6 +60,19 @@ const {
     enabled: computed(() => search.value.length > 0),
   }
 )
+
+const emit = defineEmits(['update:pageNum'])
+function prev() {
+  if (props.pageNum > 1) {
+    emit('update:pageNum', props.pageNum - 1)
+  }
+}
+
+function next() {
+  if (issues.value?.length !== 0 && !isPreviousIssues.value) {
+    emit('update:pageNum', props.pageNum + 1)
+  }
+}
 </script>
 
 <template>
@@ -70,23 +90,35 @@ const {
     <h2>Issues List <Loader v-if="fetchIssuesQueryStatus === 'fetching'" /></h2>
     <p v-if="isIssuesQueryLoading">Loading...</p>
     <p v-if="isIssuesQueryError">{{ issuesQueryError.message }}</p>
-    <ul
-      v-else-if="fetchSearchStatus === 'idle' && isSearchLoading"
-      class="issues-list"
-    >
-      <IssueItem
-        v-for="issue in issues"
-        :key="issue.id"
-        :title="issue.title"
-        :number="issue.number.toString()"
-        :assignee="issue.assignee"
-        :commentCount="issue.comments.length"
-        :createdBy="issue.createdBy"
-        :createdDate="issue.createdDate"
-        :labels="issue.labels"
-        :status="issue.status"
-      />
-    </ul>
+    <template v-else-if="fetchSearchStatus === 'idle' && isSearchLoading">
+      <ul class="issues-list">
+        <IssueItem
+          v-for="issue in issues"
+          :key="issue.id"
+          :title="issue.title"
+          :number="issue.number.toString()"
+          :assignee="issue.assignee"
+          :commentCount="issue.comments.length"
+          :createdBy="issue.createdBy"
+          :createdDate="issue.createdDate"
+          :labels="issue.labels"
+          :status="issue.status"
+        />
+      </ul>
+      <div class="pagination">
+        <button @click="prev" :disabled="pageNum === 1">Previous</button>
+        <p>
+          Page {{ pageNum }}
+          {{ fetchIssuesQueryStatus === 'fetching' ? '...' : '' }}
+        </p>
+        <button
+          :disabled="issues?.length === 0 || isPreviousIssues"
+          @click="next"
+        >
+          Next
+        </button>
+      </div>
+    </template>
     <template v-else>
       <h2>Search Results</h2>
       <p v-if="isSearchLoading">Loading...</p>
