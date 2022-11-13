@@ -20,7 +20,7 @@ const queryClient = useQueryClient()
 
 const { mutate } = useMutation(
   (assignee) => {
-    fetch(`/api/issues/${props.issueNumber}`, {
+    return fetch(`/api/issues/${props.issueNumber}`, {
       method: 'PUT',
       headers: {
         'content-type': 'application/json',

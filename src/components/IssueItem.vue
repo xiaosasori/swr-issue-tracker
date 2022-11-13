@@ -7,7 +7,7 @@ import { useQueryClient } from '@tanstack/vue-query'
 import fetchWithError from '../helpers/fetchWithError'
 const props = defineProps({
   title: String,
-  number: Number,
+  number: String,
   assignee: String,
   commentCount: Number,
   createdBy: String,

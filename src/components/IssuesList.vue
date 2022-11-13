@@ -78,7 +78,7 @@ const {
         v-for="issue in issues"
         :key="issue.id"
         :title="issue.title"
-        :number="issue.number"
+        :number="issue.number.toString()"
         :assignee="issue.assignee"
         :commentCount="issue.comments.length"
         :createdBy="issue.createdBy"

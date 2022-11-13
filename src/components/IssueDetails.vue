@@ -5,6 +5,7 @@ import Comment from './Comment.vue'
 import IssueHeader from './IssueHeader.vue'
 import IssueStatus from './IssueStatus.vue'
 import IssueAssignment from './IssueAssignment.vue'
+import IssueLabels from './IssueLabels.vue'
 
 function useIssueData(issueNumber) {
   return useQuery(['issues', issueNumber], ({ signal }) => {
@@ -49,6 +50,10 @@ const { data: comments, isLoading: isLoadingComments } = useIssueComments(id)
           />
           <IssueAssignment
             :assignee="issue.assignee"
+            :issueNumber="issue.number.toString()"
+          />
+          <IssueLabels
+            :labels="issue.labels"
             :issueNumber="issue.number.toString()"
           />
         </aside>
