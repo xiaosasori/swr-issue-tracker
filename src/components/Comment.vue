@@ -1,4 +1,5 @@
 <script setup>
+import { toRef } from 'vue'
 import { relativeDate } from '../helpers/relativeDate'
 import { useUserData } from '@/composables/useUserData'
 
@@ -8,7 +9,8 @@ const props = defineProps({
   createdDate: String,
 })
 
-const { isLoading, data } = useUserData(props.createdBy)
+const createdBy = toRef(props, 'createdBy')
+const { isLoading, data } = useUserData(createdBy)
 </script>
 <template>
   <div class="comment">

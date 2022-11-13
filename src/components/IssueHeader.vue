@@ -1,4 +1,5 @@
 <script setup>
+import { toRef } from 'vue'
 import { possibleStatus } from '../helpers/defaultData'
 import { relativeDate } from '../helpers/relativeDate'
 import { useUserData } from '@/composables/useUserData'
@@ -18,7 +19,8 @@ const props = defineProps({
 const statusObject = possibleStatus.find(
   (pstatus) => pstatus.id === props.status
 )
-const { isLoading, data } = useUserData(props.createdBy)
+const createdBy = toRef(props, 'createdBy')
+const { isLoading, data } = useUserData(createdBy)
 </script>
 <template>
   <header>

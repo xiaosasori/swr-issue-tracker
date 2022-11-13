@@ -1,4 +1,5 @@
 <script setup>
+import { toRefs } from 'vue'
 import { relativeDate } from '../helpers/relativeDate'
 import { useUserData } from '@/composables/useUserData'
 import Label from './Label.vue'
@@ -16,21 +17,21 @@ const props = defineProps({
 })
 
 let assigneeUser
+const { createdBy, number, assignee } = toRefs(props)
 if (props.assignee) {
-  const { data } = useUserData(props.assignee)
+  const { data } = useUserData(assignee)
   assigneeUser = data
 }
 
-const { data: createdByUser } = useUserData(props.createdBy)
+const { data: createdByUser } = useUserData(createdBy)
 const queryClient = useQueryClient()
 
 function prefetch() {
-  queryClient.prefetchQuery(['issues', props.number.toString()], () =>
+  queryClient.prefetchQuery(['issues', number], () =>
     fetchWithError(`/api/issues/${props.number}`)
   )
-  queryClient.prefetchQuery(
-    ['issues', props.number.toString(), 'comments'],
-    () => fetchWithError(`/api/issues/${props.number}/comments`)
+  queryClient.prefetchQuery(['issues', number, 'comments'], () =>
+    fetchWithError(`/api/issues/${number.value}/comments`)
   )
 }
 </script>
