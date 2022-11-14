@@ -30,8 +30,8 @@ function prefetch() {
   queryClient.prefetchQuery(['issues', number], () =>
     fetchWithError(`/api/issues/${props.number}`)
   )
-  queryClient.prefetchQuery(['issues', number, 'comments'], () =>
-    fetchWithError(`/api/issues/${number.value}/comments`)
+  queryClient.prefetchInfiniteQuery(['issues', number, 'comments'], () =>
+    fetchWithError(`/api/issues/${number.value}/comments?page=1`)
   )
 }
 </script>
