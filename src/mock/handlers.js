@@ -1,7 +1,10 @@
 import { rest } from 'msw'
 import { issueComments, issues, labels, users } from './db'
 
-const makeUrl = (path) => `http://localhost:3000${path}`
+const url = import.meta.env.DEV
+  ? 'http://localhost:3000'
+  : import.meta.env.BASE_URL
+const makeUrl = (path) => `${url}${path}`
 const handleErrorDelay = async (req) => {
   if (req.headers.get('x-delay')) {
     await new Promise((resolve) =>
